@@ -13,9 +13,9 @@ import java.util.StringJoiner;
  * @create: 2019/10/18 下午7:13
  **/
 @Slf4j
-public class MybatisAnnotationTemplate extends Template {
+public class MybatisAnnotationOrmTemplate extends OrmTemplate {
 
-    public MybatisAnnotationTemplate(TableDto table) {
+    public MybatisAnnotationOrmTemplate(TableDto table) {
         super(table);
     }
 

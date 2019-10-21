@@ -12,7 +12,7 @@ import java.util.StringJoiner;
  *  拟定功能
  */
 @Slf4j
-public abstract class Template {
+public abstract class OrmTemplate {
 
     protected String tableName;
 
@@ -22,7 +22,7 @@ public abstract class Template {
 
     protected TableDto table;
 
-    Template(TableDto table) {
+    OrmTemplate(TableDto table) {
         List<TableDto.Field> fields = table.getFields();
         if (null == fields || fields.isEmpty()) {
             String errMessage = "表参数为空，请检查";
