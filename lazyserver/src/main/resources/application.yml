@@ -1,8 +1,10 @@
 logging:
   level:
     com.wangxingchao: debug
-lazy:
-  datasource:
 spring:
   application:
     name: 123
+lazy:
+  datasource:
+    url: ""
+    table-name: 12345
