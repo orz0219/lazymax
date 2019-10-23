@@ -1,7 +1,8 @@
 package com.wangxingchao.fastwork.template.ftl;
 
 public enum FreeMarker {
-    RPC("rpc");
+    RPC("rpc"),
+    API("api");
 
     private String value;
 

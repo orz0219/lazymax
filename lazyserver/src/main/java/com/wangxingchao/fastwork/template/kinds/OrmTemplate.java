@@ -1,4 +1,4 @@
-package com.wangxingchao.fastwork.template;
+package com.wangxingchao.fastwork.template.kinds;
 
 import com.wangxingchao.fastwork.common.exception.CustomException;
 import com.wangxingchao.fastwork.dto.TableDto;

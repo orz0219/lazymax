@@ -9,5 +9,4 @@ import com.wangxingchao.fastwork.template.ftl.FreeMarker;
  * @create: 2019/10/21 下午8:35
  **/
 public class BaseVo {
-    protected FreeMarker ftl;
 }
