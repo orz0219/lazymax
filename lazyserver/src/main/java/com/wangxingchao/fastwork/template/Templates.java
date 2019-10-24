@@ -34,13 +34,12 @@ public abstract class Templates {
         }
     }
 
-    protected Templates() {
-        vo = getVo();
-    }
+    protected Templates() {}
 
     protected abstract BaseVo getVo();
 
     protected String template(FreeMarker freeMarker, Writer out){
+        vo = getVo();
         Template template = templates.get(freeMarker);
         try {
             if (null == template) {

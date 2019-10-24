@@ -4,16 +4,11 @@ import com.wangxingchao.fastwork.template.Templates;
 import com.wangxingchao.fastwork.template.ftl.FreeMarker;
 import com.wangxingchao.fastwork.template.vo.ApiVo;
 import com.wangxingchao.fastwork.template.vo.BaseVo;
-import com.wangxingchao.fastwork.template.vo.FieldVo;
 import com.wangxingchao.fastwork.utils.ReadUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @program: lazyserver
@@ -22,19 +17,31 @@ import java.util.List;
  * @create: 2019/10/22 下午1:51
  **/
 @Slf4j
+@Data
+@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
 public class Api extends Templates {
+
+    private String url;
+    private String pathIn;
+    private String pathOut;
 
     @Override
     protected BaseVo getVo() {
         ApiVo vo = new ApiVo();
-        vo.setUrl("/api/test");
-        vo.setFieldsIn(ReadUtils.readFields("/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/BasisRequestVOIn.java"));
-        vo.setFieldsOut(ReadUtils.readFields("/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/BasisRequestVOIn.java"));
+        vo.setUrl(url);
+        vo.setFieldsIn(ReadUtils.readFields(pathIn));
+        vo.setFieldsOut(ReadUtils.readFields(pathOut));
         return vo;
     }
 
     public static void main(String[] args) {
-        System.out.println(new Api().templateByStringWriter(FreeMarker.API));
+        Api api = new Api(
+                "/api/getBasisConfig",
+                "/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/system/MenuVOOut.java",
+                "/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/system/WebVOOut.java"
+        );
+        System.out.println(api.templateByStringWriter(FreeMarker.API));
     }
 
 }
