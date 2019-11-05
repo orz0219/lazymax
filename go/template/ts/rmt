@@ -1,0 +1,4 @@
+    /** * ----------------- {{.Des}} ------------------- */
+    //灌入{{.Des}}
+    @PostMapping("/mount{{.Class}}")
+    ApiResponse<Boolean> mount{{.Class}}();

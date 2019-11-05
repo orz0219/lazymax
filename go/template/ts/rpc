@@ -1,0 +1,34 @@
+    @Resource
+    private {{.Class}}Service service;
+
+    /* *
+     * @description: 灌入{{.Des}}
+     * @author: : wangxingchao
+     * @create: 2019/10/31 下午4:19
+     */
+    @PostMapping("/mount{{.Class}}")
+    public ApiResponse<Boolean> mount{{.Class}}(){
+        try {
+            return service.mount{{.Class}}(in);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("############RPC层 灌入{{.Des}} 错误 /api/cart/mount{{.Class}} {}" , e.getMessage());
+            return ApiResponse.failure();
+        }
+    }
+
+    /* *
+     * @description: 获取{{.Des}}
+     * @author: : wangxingchao
+     * @create: 2019/10/31 下午4:19
+     */
+    @PostMapping("/{{.LowClass}}")
+    public ApiResponse<{{.Out}}> {{.LowClass}}(@RequestBody {{.In}} in){
+        try {
+            return service.{{.LowClass}}(in);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("############RPC层 获取{{.Des}} 错误 /api/{{.projectName}}/{{.LowClass}} {}" , e.getMessage());
+            return ApiResponse.failure();
+        }
+    }

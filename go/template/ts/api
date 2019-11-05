@@ -1,0 +1,53 @@
+接口URL：{{.Url}}
+
+调用方法：
+- Method：POST
+- ContentType：application/json
+
+调用限制：NA/min
+
+请求入参：
+
+{{.BeanIn.Name}}
+
+序列 | 参数名 | 参数类型 | 是否为空 | 参数描述
+:---:|:---:|:---:|:---:|:---:
+{{range $index , $field := .BeanIn.Fields}}{{$index}}|{{$field.Name}}|{{$field.Type}}|{{$field.AllowNull}}|{{$field.Comment}}
+{{end}}
+{{range $bean := .BeanIn.OtherBeans}}
+{{$bean.Name}}
+
+序列 | 参数名 | 参数类型 | 是否为空 | 参数描述
+:---:|:---:|:---:|:---:|:---:
+{{range $index , $field := $bean.Fields}}{{$index}}|{{$field.Name}}|{{$field.Type}}|{{$field.AllowNull}}|{{$field.Comment}}
+{{end}}
+{{end}}
+示例：
+```
+ {{.BeanIn.Model}}
+```
+
+请求出参：
+
+{{.BeanOut.Name}}
+
+序列 | 参数名 | 参数类型 | 是否为空 | 参数描述
+:---:|:---:|:---:|:---:|:---:
+{{range $index , $field := .BeanOut.Fields}}{{$index}}|{{$field.Name}}|{{$field.Type}}|{{$field.AllowNull}}|{{$field.Comment}}
+{{end}}
+{{range $bean := .BeanOut.OtherBeans}}
+{{$bean.Name}}
+
+序列 | 参数名 | 参数类型 | 是否为空 | 参数描述
+:---:|:---:|:---:|:---:|:---:
+{{range $index , $field := $bean.Fields}}{{$index}}|{{$field.Name}}|{{$field.Type}}|{{$field.AllowNull}}|{{$field.Comment}}
+{{end}}
+{{end}}
+示例：
+```
+{
+    "code": 1001,
+    "data": {{.BeanOut.Model}},
+    "st": 1571638583
+}
+```
