@@ -1,6 +1,6 @@
     /** * ----------------- {{.Des}} ------------------- */
     //灌入{{.Des}}
     @Override
-    public ApiResponse<Boolean> mount{{.Class}}(PageVOIn in) {
+    public ApiResponse<Boolean> mount{{.Class}}() {
         return ApiResponse.failure(ApiResponseCode.SERVICE_ERROR);
     }

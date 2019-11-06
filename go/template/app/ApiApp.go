@@ -14,6 +14,7 @@ import (
 var projectName = "/home/xc/works/projects/company/Oceanus/zdd-common"
 
 var api = bean.Api{}
+var isData = false
 
 func run(w http.ResponseWriter, templates string) {
 	utils.InitFile(projectName, constant.JAVA)
@@ -37,6 +38,7 @@ func initApi(r *http.Request) {
 	api.Out = r.PostFormValue("beanOut")
 	api.Des = r.PostFormValue("des")
 	api.ProjectName = r.PostFormValue("projectName")
+	api.CreateTime = r.PostFormValue("createTime")
 }
 
 func apis(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +65,11 @@ func main() {
 	}
 	http.HandleFunc("/apis", apis)
 	http.HandleFunc("/code", code)
-	http.Handle("/", http.FileServer(&files))
+	if isData {
+		http.Handle("/", http.FileServer(&files))
+	} else {
+		http.Handle("/", http.FileServer(http.Dir("./template/dist/")))
+	}
 	err := http.ListenAndServe(":9090", nil)
 	if err != nil {
 		log.Fatal("Listen: ", err)

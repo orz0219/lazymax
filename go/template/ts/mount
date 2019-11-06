@@ -3,12 +3,12 @@
         new Thread(() -> {
             try {
                 while (true) {
-                    log.debug("--- MOUNT层 灌入{{.Des}} promotionRmt.mount{{.Class}}(in);");
-                    promotionRmt.mount{{.Class}}List(in);
+                    log.debug("--- MOUNT层 灌入{{.Des}} {{.ProjectName}}Rmt.mount{{.Class}}();");
+                    {{.ProjectName}}Rmt.mount{{.Class}}List();
                     Thread.sleep(SLEEP_TIME);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("############ MOUNT层 灌入{{.Des}}  promotionRmt.mount{{.Class}}(in);");
+                log.error("############ MOUNT层 灌入{{.Des}}  {{.ProjectName}}Rmt.mount{{.Class}}();");
             }
         }).start();

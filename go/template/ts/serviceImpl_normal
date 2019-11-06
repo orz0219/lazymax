@@ -1,0 +1,10 @@
+
+    /* *
+     * @description: {{.Des}}
+     * @author: : wangxingchao
+     * @create: {{.CreateTime}}
+     */
+    @Override
+    public ApiResponse<{{.Out}}> {{.LowClass}}({{.In}} in) {
+        return ApiResponse.success(out);
+    }

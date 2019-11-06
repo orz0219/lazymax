@@ -1,23 +1,18 @@
-package com.zdd.api.service.{{.LowClass}};
+package com.zdd.api.service.{{.ProjectName}};
 
 import com.zdd.vo.ApiProductVOOut;
 import com.zdd.vo.ApiResponse;
 import com.zdd.vo.PageVOIn;
-import com.zdd.vo.promotion.{{.LowClass}}.{{.Class}}VOOut;
 
 import java.util.List;
 
 public interface {{.Class}}Service {
 
     /** * ----------------- 数据灌入 ------------------- */
-    // 灌入{{.Des}}商品列表
-    ApiResponse<Boolean> mount{{.Class}}List(PageVOIn in);
-    // 灌入{{.Des}}主体信息
-    ApiResponse<Boolean> mount{{.Class}}Main(PageVOIn in);
+    // 灌入{{.Des}}
+    ApiResponse<Boolean> mount{{.Class}}();
 
     /** * ----------------- 数据获取 ------------------- */
-    // 获取{{.Des}}商品列表
-    ApiResponse<List<ApiProductVOOut>> {{.LowClass}}List(PageVOIn in);
-    // 获取{{.Des}}主体数据
-    ApiResponse<{{.Class}}VOOut> {{.LowClass}}Main(PageVOIn in);
+    // 获取{{.Des}}
+    ApiResponse<{{.Out}}> {{.LowClass}}({{.In}} in);
 }

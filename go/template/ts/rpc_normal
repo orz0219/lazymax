@@ -1,0 +1,15 @@
+ /* *
+     * @description: {{.Des}}
+     * @author: : wangxingchao
+     * @create: {{.CreateTime}}
+     */
+    @PostMapping("/{{.LowClass}}")
+    public ApiResponse<{{.Out}}> {{.LowClass}}(@RequestBody {{.In}} in){
+        try {
+            return service.{{.LowClass}}(in);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("############RPC层 {{.Des}} 错误 /api/{{.ProjectName}}/{{.LowClass}} {}" , e.getMessage());
+            return ApiResponse.failure();
+        }
+    }

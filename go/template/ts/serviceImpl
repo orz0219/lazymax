@@ -1,35 +1,3 @@
-import com.alibaba.fastjson.JSON;
-import com.zdd.api.service.advert.AdvertService;
-import com.zdd.api.util.ParseUtils;
-import com.zdd.consts.AdvertPositionConsts;
-import com.zdd.consts.ApiResponseCode;
-import com.zdd.consts.ParamConstant;
-import com.zdd.consts.RedisKeyConsts;
-import com.zdd.enums.promotion.ActTypeEnum;
-import com.zdd.rmt.promotion.ActivityRmt;
-import com.zdd.util.date.DateUtil;
-import com.zdd.vo.ApiProductVOOut;
-import com.zdd.vo.ApiResponse;
-import com.zdd.vo.CommonResponse;
-import com.zdd.vo.PageVOIn;
-import com.zdd.vo.promotion.activity.in.QueryActivityIn;
-import com.zdd.vo.promotion.activity.out.ActGoodsCommonOut;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * @program: zdd-api
- * @description: {{.Des}}实现
- * @author: wangxingchao
- * @create: 2019/10/31 下午7:41
- **/
 @Slf4j
 @Service
 public class {{.Class}}ServiceImpl implements {{.Class}}Service{
@@ -38,93 +6,33 @@ public class {{.Class}}ServiceImpl implements {{.Class}}Service{
     @Resource
     private StringRedisTemplate template;
 
-    //活动rmt
-    @Resource
-    private ActivityRmt rmt;
-
-    //广告
-    @Resource
-    private AdvertService advertService;
-
-    private ApiResponse<List<ActGoodsCommonOut>> rmt(){
-        QueryActivityIn activityIn = new QueryActivityIn();
-        activityIn.setAid(ParamConstant.APP_ZDD);
-        activityIn.setActType(ActTypeEnum.THREE_SUB_ONE.getValue());
-        CommonResponse<List<ActGoodsCommonOut>> indexActGoods = rmt.getIndexActGoods(activityIn);
-        Integer code = indexActGoods.getCode();
-        if (ApiResponseCode.SUCCESS.getCode() != code) {
-            log.error("############ SERVICE层 促销 获取{{.Des}}数据 错误 rmt.getIndexActGoods(activityIn)"+ indexActGoods.getMessage());
-            return ApiResponse.tunnel(code, null);
-        }
-        return ApiResponse.tunnel(code, indexActGoods.getData());
-    }
-
-
     /* *
-     * @description: 灌入{{.Des}}商品列表
+     * @description: 灌入{{.Des}}
      * @author: : wangxingchao
-     * @create: 2019/10/31 下午7:42
+     * @create: {{.CreateTime}}
      */
     @Override
-    public ApiResponse<Boolean> mount{{.Class}}List(PageVOIn in) {
-        ApiResponse<List<ActGoodsCommonOut>> result = rmt();
-        List<ActGoodsCommonOut> dataList = result.getData();
+    public ApiResponse<Boolean> mount{{.Class}}() {
+        ApiResponse result = rmt();
+        List dataList = result.getData();
         if (dataList == null) {
             return ApiResponse.tunnel(result.getCode(), false);
         }
-        template.opsForValue().set(RedisKeyConsts.PROMOTION_XXX_LIST, JSON.toJSONString(ParseUtils.parseProduct(dataList)),
+        template.opsForValue().set(RedisKeyConsts.PROMOTION_XXX_LIST, JSON.toJSONString(dataList),
                 1, TimeUnit.MINUTES);
-        log.debug("***灌入{{.Des}}商品列表 完成..." + DateUtil.dateFormat(new Date(), DateUtil.DATE_TIME_PATTERN));
+        log.debug("***灌入{{.Des}} 完成..." + DateUtil.dateFormat(new Date(), DateUtil.DATE_TIME_PATTERN));
         return ApiResponse.success(true);
     }
 
     /* *
-     * @description: 灌入{{.Des}}主体信息
+     * @description: 获取{{.Des}}
      * @author: : wangxingchao
-     * @create: 2019/10/31 下午7:43
+     * @create: {{.CreateTime}}
      */
     @Override
-    public ApiResponse<Boolean> mount{{.Class}}Main(PageVOIn in) {
-        ApiResponse<List<ActGoodsCommonOut>> result = rmt();
-        List<ActGoodsCommonOut> dataList = result.getData();
-        if (dataList == null) {
-            return ApiResponse.tunnel(result.getCode(), false);
-        }
-
-        //TODO  start
-        {{.Class}}VOOut out = new {{.Class}}VOOut();
-        List<ApiProductVOOut> outs = ParseUtils.parseProduct(dataList);
-        out.setAl(advertService.getBannerList(AdvertPositionConsts.XXX.getPositionType()));
-        out.setTsn(ParseUtils.parseTimeSkeleton(dataList, "XXX", null));
-        //TODO end
-        template.opsForValue().set(RedisKeyConsts.PROMOTION_XXX_MAIN, JSON.toJSONString(out),
-                1, TimeUnit.MINUTES);
-
-        log.debug("***灌入{{.Des}}主体信息 完成..." + DateUtil.dateFormat(new Date(), DateUtil.DATE_TIME_PATTERN));
-        return ApiResponse.success(true);
-    }
-
-    /* *
-     * @description: 获取{{.Des}}商品列表
-     * @author: : wangxingchao
-     * @create: 2019/10/31 下午7:43
-     */
-    @Override
-    public ApiResponse<List<ApiProductVOOut>> {{.LowClass}}List(PageVOIn in) {
+    public ApiResponse<{{.Out}}> {{.LowClass}}({{.In}} in) {
         String result = template.opsForValue().get(RedisKeyConsts.PROMOTION_XXX_LIST);
-        List<ApiProductVOOut> list = JSON.parseArray(result, ApiProductVOOut.class);
-        return ApiResponse.success(list == null ? new ArrayList<>() : list);
-    }
-
-    /* *
-     * @description: 获取{{.Des}}主体数据
-     * @author: : wangxingchao
-     * @create: 2019/10/31 下午7:43
-     */
-    @Override
-    public ApiResponse<{{.Class}}VOOut> {{.LowClass}}Main(PageVOIn in) {
-        String result = template.opsForValue().get(RedisKeyConsts.PROMOTION_XXX_MAIN);
-        {{.Class}}VOOut out =JSON.parseObject(result, {{.Class}}VOOut.class);
-        return  ApiResponse.success(out == null ? new {{.Class}}VOOut() : out);
+        {{.Out}} out = JSON.parseObject(result, {{.Out}}.class);
+        return ApiResponse.success(out);
     }
 }
