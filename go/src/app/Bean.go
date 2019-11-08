@@ -1,4 +1,4 @@
-package bean
+package main
 
 type Bean struct {
 	Name       string

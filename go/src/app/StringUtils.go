@@ -1,7 +1,6 @@
-package utils
+package main
 
 import (
-	"myUtils/template/bean"
 	"regexp"
 	"strings"
 )
@@ -24,7 +23,7 @@ func getDefaultValue(_type string) string {
 }
 
 //获取字段信息
-func FillField(line string, _field bean.Field) bean.Field {
+func FillField(line string, _field Field) Field {
 	if r, _ := regexp.Compile("\\s+//\\s*"); r.MatchString(line) {
 		_field.Comment = r.ReplaceAllString(line, "")
 	}

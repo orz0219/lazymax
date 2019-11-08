@@ -1,32 +1,36 @@
 package main
 
 import (
-	"github.com/elazarl/go-bindata-assetfs"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"log"
-	"myUtils/template/bean"
-	"myUtils/template/constant"
-	"myUtils/template/stat"
-	"myUtils/template/utils"
 	"net/http"
+	"stat"
 	"text/template"
 )
 
 var projectName = "/home/xc/works/projects/company/Oceanus/zdd-common"
 
-var api = bean.Api{}
+var api = Api{}
 var isData = false
 
+var funcMap = template.FuncMap{"add": add}
+
+//模板计算
+func add(index int) int {
+	return index + 1
+}
+
 //跨域问题
-func cross(w http.ResponseWriter)  {
+func cross(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
 	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
 }
 
-func run(w http.ResponseWriter, templates string) {
-	utils.InitFile(projectName, constant.JAVA)
-	api.BeanIn = utils.GetBean(api.In)
-	api.BeanOut = utils.GetBean(api.Out)
-	if t, err := template.ParseFiles(templates); err == nil {
+func run(w http.ResponseWriter, templates string, t string) {
+	InitFile(projectName, JAVA)
+	api.BeanIn = GetBean(api.In)
+	api.BeanOut = GetBean(api.Out)
+	if t, err := template.New(t).Funcs(funcMap).ParseFiles(templates); err == nil {
 		if err := t.Execute(w, api); err == nil {
 			log.Println("生成完毕")
 		} else {
@@ -50,15 +54,15 @@ func initApi(r *http.Request, w http.ResponseWriter) {
 
 func apis(w http.ResponseWriter, r *http.Request) {
 	initApi(r, w)
-	run(w, "template/ts/api")
+	run(w, "src/ts/api", "api")
 }
 
 func code(w http.ResponseWriter, r *http.Request) {
 	initApi(r, w)
 	codeTypes := r.PostFormValue("codeTypes")
 	api.LowClass = r.PostFormValue("suf")
-	api.Class = utils.UpperFirstWord(api.LowClass)
-	run(w, "template/ts/"+codeTypes)
+	api.Class = UpperFirstWord(api.LowClass)
+	run(w, "src/ts/"+codeTypes, codeTypes)
 }
 
 func main() {
@@ -75,7 +79,7 @@ func main() {
 	if isData {
 		http.Handle("/", http.FileServer(&files))
 	} else {
-		http.Handle("/", http.FileServer(http.Dir("./template/dist/")))
+		http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
 	}
 	err := http.ListenAndServe(":9090", nil)
 	if err != nil {

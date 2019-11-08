@@ -1,4 +1,4 @@
-package bean
+package main
 
 type Api struct {
 	Url         string
@@ -10,4 +10,5 @@ type Api struct {
 	In          string
 	Out         string
 	ProjectName string
+	CreateTime  string
 }

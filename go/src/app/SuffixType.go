@@ -1,4 +1,4 @@
-package constant
+package main
 
 type SuffixType string
 
