@@ -5,17 +5,25 @@
         <div class="bar">
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
             <at-input v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
-            <at-input v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
+            <at-input v-show="message.setterTypes !== 'setter_short'" v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
             <at-radio-group v-model="message.setterTypes">
-                <at-radio-button label="normal">normal</at-radio-button>
-                <at-radio-button label="list">list</at-radio-button>
+                <at-radio-button label="setter_short">获取缩写对象</at-radio-button>
+                <at-radio-button label="setter_in_out">入参转出参</at-radio-button>
+                <at-radio-button label="setter_out_in">出参转入参</at-radio-button>
             </at-radio-group>
             <div style="text-align: center">
                 <at-button type="success" @click="getIt">生成</at-button>
             </div>
         </div>
         <div class="bar">
-            <at-textarea minRows="20" v-model="nodes" placeholder="文档展示位置"></at-textarea>
+            <div class="row at-row no-gutter">
+                <div v-show="message.setterTypes !== 'setter_short'" class="col-md-12">
+                    <at-textarea minRows="20" v-model="nodes0" placeholder="入参展示位置"></at-textarea>
+                </div>
+                <div :class="`col-md-${message.setterTypes==='setter_short' ? 24 : 12}`">
+                    <at-textarea minRows="20" v-model="nodes1" placeholder="出参展示位置"></at-textarea>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -29,9 +37,10 @@
                     projectPath: null,
                     beanIn: null,
                     beanOut: null,
-                    setterTypes: "normal"
+                    setterTypes: "setter_short"
                 },
-                nodes: null
+                nodes0: null,
+                nodes1: null,
             }
         },
         created() {
@@ -50,7 +59,7 @@
                    }
                }
                 this.$post("/setter", this.message, result=>{
-                    this.nodes = result.data
+                    this.nodes1 = result.data
                 })
             },
             cacheProject() {
