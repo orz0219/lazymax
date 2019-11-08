@@ -1,12 +1,15 @@
 <template>
     <div class="show-page">
-        <div class="title"><h2>文档自动生成</h2></div>
+        <div class="title"><h2>setter自动生成</h2></div>
         <hr/>
         <div class="bar">
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
-            <at-input v-model="message.api" placeholder="输入api参数" @change="cacheProject"></at-input>
             <at-input v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
             <at-input v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
+            <at-radio-group v-model="message.setterTypes">
+                <at-radio-button label="normal">normal</at-radio-button>
+                <at-radio-button label="list">list</at-radio-button>
+            </at-radio-group>
             <div style="text-align: center">
                 <at-button type="success" @click="getIt">生成</at-button>
             </div>
@@ -19,14 +22,14 @@
 
 <script>
     export default {
-        name: "Api",
+        name: "Setter",
         data() {
             return {
                 message:{
                     projectPath: null,
-                    api: null,
                     beanIn: null,
                     beanOut: null,
+                    setterTypes: "normal"
                 },
                 nodes: null
             }
@@ -46,9 +49,8 @@
                        return
                    }
                }
-                this.$post("/apis", this.message, result=>{
-                    let nodes = result.data
-                    this.nodes = nodes.replace(/</g, "&lt;")
+                this.$post("/setter", this.message, result=>{
+                    this.nodes = result.data
                 })
             },
             cacheProject() {

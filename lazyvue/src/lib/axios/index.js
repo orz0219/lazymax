@@ -7,6 +7,9 @@ axiosUtil.install = function (Vue) {
             data = {}
         }
         data = qs.stringify(data)
+        if (process.env.NODE_ENV === 'development') {
+            url = "http://localhost:9090" + url
+        }
         axios.post(url, data, callback).then(result => {
             callback(result)
         })

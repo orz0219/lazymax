@@ -10,10 +10,13 @@
             <at-input v-model="message.suf" placeholder="输入获取方法前缀小写[例: home]" @change="cacheProject"></at-input>
             <at-input v-model="message.beanIn" placeholder="输入获取方法入参类名" @change="cacheProject"></at-input>
             <at-input v-model="message.beanOut" placeholder="输入获取方法出参类名" @change="cacheProject"></at-input>
+            <at-input v-model="message.createTime" placeholder="日期" disabled></at-input>
             <at-radio-group v-model="message.codeTypes">
                 <at-radio-button label="rpc">rpc</at-radio-button>
+                <at-radio-button label="rpc_normal">rpc_normal</at-radio-button>
                 <at-radio-button label="service">service</at-radio-button>
                 <at-radio-button label="serviceImpl">serviceImpl</at-radio-button>
+                <at-radio-button label="serviceImpl_normal">serviceImpl_normal</at-radio-button>
                 <at-radio-button label="rmt">rmt</at-radio-button>
                 <at-radio-button label="rmtImpl">rmtImpl</at-radio-button>
                 <at-radio-button label="mount">mount</at-radio-button>
@@ -42,6 +45,7 @@
                     projectName: null,
                     beanIn: null,
                     beanOut: null,
+                    createTime: null
                 },
                 nodes: null
             }
@@ -49,8 +53,6 @@
         created() {
             let message = localStorage.getItem("cacheMessage")
             if (message) {
-                // eslint-disable-next-line no-debugger
-                debugger
                 this.message = eval("(" + message + ")")
             }
         },
@@ -63,6 +65,15 @@
                         return
                     }
                 }
+                let date = new Date()
+                let year = date.getFullYear()
+                let month = date.getMonth() + 1
+                let day = date.getDate()
+                let hours = date.getHours()
+                let zh = hours > 12 ? "下午" : "上午"
+                hours = hours > 12 ? hours - 12 : hours
+                let min = date.getMinutes()
+                this.message.createTime = year + "年" + month + "月" + day + "日 " + zh + " " + hours + ":" + min
                 this.$post("/code", this.message, result=>{
                     this.nodes = result.data
                 })
