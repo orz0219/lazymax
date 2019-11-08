@@ -5,8 +5,6 @@ import com.wangxingchao.fastwork.template.ftl.FreeMarker;
 import com.wangxingchao.fastwork.template.vo.BaseVo;
 import com.wangxingchao.fastwork.template.vo.MiddleRpcVo;
 
-import java.io.StringWriter;
-
 /**
  * @program: lazyserver
  * @description:
@@ -19,9 +17,11 @@ public class Rpc extends Templates {
     protected BaseVo getVo() {
         MiddleRpcVo middleRpcVo = new MiddleRpcVo();
         middleRpcVo.setHasResult(false);
-        middleRpcVo.setMethodName("appInfo");
-        middleRpcVo.setDescription("获取设备信息");
-        middleRpcVo.setResponse("AppInfoVOOut");
+        middleRpcVo.setSecondPath("/home");
+        middleRpcVo.setMethodName("getProductList");
+        middleRpcVo.setDescription("商品列表信息");
+        middleRpcVo.setResponse("ProductListVOOut");
+        middleRpcVo.setParamString("PageVOIn");
         return middleRpcVo;
     }
 

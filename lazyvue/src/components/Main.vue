@@ -2,7 +2,7 @@
     <div class="container">
         <div class="app">
             <img src="../assets/logo.png" alt="">
-            <div class="title">慵懒的开发工具集-新流通版</div>
+            <div class="title">慵懒的开发工具集-新流通版 v1.0<at-button type="text" @click="url('/history')">更新日志</at-button></div>
             <at-button type="text" @click="url('/api')">文档生成</at-button>
             <at-button type="text" @click="url('/rpc')">代码生成</at-button>
             <at-button type="text" @click="url('/setter')">Setter生成</at-button>

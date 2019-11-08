@@ -1,9 +1,7 @@
 package com.wangxingchao.fastwork.template.vo;
 
-import com.wangxingchao.fastwork.template.ftl.FreeMarker;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 
 /**
  * @program: lazyserver
@@ -14,6 +12,7 @@ import lombok.NonNull;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class MiddleRpcVo extends BaseVo{
+    private String secondPath;
     private String methodName;
     private String paramString;
     private Boolean hasResult;

@@ -1,13 +1,14 @@
-    @RequestMapping("/${vo.methodName}")
-    public ApiResponse<${vo.response}> ${vo.methodName}(<#if vo.paramString ??>${vo.paramString} in</#if>){
-        log.debug("---RPC层 ${vo.description} 入参 /api/${vo.methodName} {}" <#if vo.paramString ??>, JSON.toJSONString(in)</#if>);
-        ApiResponse<${vo.response}> result = null;
+    @RequestMapping("/${methodName}")
+    public ApiResponse<${response}> ${methodName}(<#if paramString ??>${paramString} in</#if>){
+        log.debug("---RPC层 ${description} 入参 /api/${methodName} {}" <#if paramString ??>, JSON.toJSONString(in)</#if>);
+        ApiResponse<${response}> result;
         try {
-            result = ApiResponse.success(userService.${vo.methodName}(<#if vo.paramString ??>in</#if>));
+            result = ${secondPath}Service.${methodName}(<#if paramString ??>in</#if>);
         } catch (Exception e) {
-            log.error("############RPC层 ${vo.description} 错误 /api/${vo.methodName} {}"<#if vo.paramString ??> , JSON.toJSONString(in)</#if>);
-        return ApiResponse.failure(ApiResponseCode.CUSTOMER_SERVICE);
+            log.error("############RPC层 ${description} 异常 /api${secondPath}/${methodName} {}" , e.getMessage());
+            e.printStackTrace();
+            return ApiResponse.failure(ApiResponseCode.EXCEPTION);
         }
-        log.debug("***RPC层 ${vo.description} 出参 /api/${vo.methodName} {}" , JSON.toJSONString(result));
+        log.debug("***RPC层 ${description} 出参 /api${secondPath}/${methodName} {}" , JSON.toJSONString(result));
         return result;
     }

@@ -16,6 +16,12 @@ var projectName = "/home/xc/works/projects/company/Oceanus/zdd-common"
 var api = bean.Api{}
 var isData = false
 
+//跨域问题
+func cross(w http.ResponseWriter)  {
+	w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+}
+
 func run(w http.ResponseWriter, templates string) {
 	utils.InitFile(projectName, constant.JAVA)
 	api.BeanIn = utils.GetBean(api.In)
@@ -31,7 +37,8 @@ func run(w http.ResponseWriter, templates string) {
 	}
 }
 
-func initApi(r *http.Request) {
+func initApi(r *http.Request, w http.ResponseWriter) {
+	cross(w)
 	projectName = r.PostFormValue("projectPath")
 	api.Url = r.PostFormValue("api")
 	api.In = r.PostFormValue("beanIn")
@@ -42,12 +49,12 @@ func initApi(r *http.Request) {
 }
 
 func apis(w http.ResponseWriter, r *http.Request) {
-	initApi(r)
+	initApi(r, w)
 	run(w, "template/ts/api")
 }
 
 func code(w http.ResponseWriter, r *http.Request) {
-	initApi(r)
+	initApi(r, w)
 	codeTypes := r.PostFormValue("codeTypes")
 	api.LowClass = r.PostFormValue("suf")
 	api.Class = utils.UpperFirstWord(api.LowClass)

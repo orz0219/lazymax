@@ -37,9 +37,9 @@ public class Api extends Templates {
 
     public static void main(String[] args) {
         Api api = new Api(
-                "/api/getBasisConfig",
-                "/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/system/MenuVOOut.java",
-                "/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/system/WebVOOut.java"
+                "/api/sys/apiResponseCode",
+                "/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/BasisRequestVOIn.java",
+                "/home/xc/works/projects/company/Oceanus/zdd-common/src/main/java/com/zdd/vo/account/out/ApiResponseCodeVo.java"
         );
         System.out.println(api.templateByStringWriter(FreeMarker.API));
     }
