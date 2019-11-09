@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"regexp"
 	"strings"
 )
@@ -12,11 +14,13 @@ var column = "    "
 var fileCache = make(map[string]string)
 var otherBeans []Bean
 var cacheBeans []string
+var isList = false
+var basics = []string{"String", "Integer", "Boolean", "Long"}
 
 func GetBean(fileName string) Bean {
-	var isList = false
+	isList = false
 	isList, fileName = checkList(fileName)
-	if isBasic, b := checkType(fileName, isList); isBasic {
+	if isBasic, b := checkType(fileName); isBasic {
 		return b
 	}
 	cacheBeans = []string{"EventVOOut"}
@@ -61,7 +65,11 @@ func getModelString(fields []Field, c string) string {
 		buffer.WriteString(column)
 		buffer.WriteString(column)
 	}
-	buffer.WriteString("{\n" + c)
+	if isList {
+		buffer.WriteString("[{\n" + c)
+	} else {
+		buffer.WriteString("{\n" + c)
+	}
 	for index, field := range fields {
 		buffer.WriteString(column)
 		buffer.WriteString("\"")
@@ -111,7 +119,11 @@ func getModelString(fields []Field, c string) string {
 		}
 		buffer.WriteString("\n" + c)
 	}
-	buffer.WriteString("}")
+	if isList {
+		buffer.WriteString("}]")
+	} else {
+		buffer.WriteString("}")
+	}
 	return buffer.String()
 }
 
@@ -143,15 +155,14 @@ func InitFile(path string, types SuffixType) {
 	}
 }
 
-func checkType(fileName string, isList bool) (bool, Bean) {
-	var basics = []string{"String", "Integer", "Boolean"}
+func checkType(fileName string) (bool, Bean) {
 	for _, name := range basics {
 		if name == fileName {
 			if isList {
-				fileName = "List<" + fileName + ">"
+				name = "List<" + fileName + ">"
 			}
 			b := Bean{
-				Name: fileName,
+				Name: name,
 				Fields: []Field{{
 					Name:         "无",
 					Type:         fileName,
@@ -173,5 +184,74 @@ func checkList(fileName string) (bool, string) {
 		r, _ := regexp.Compile("[a-zA-Z]+")
 		return true, r.FindAllString(fileName, 2)[1]
 	}
-	return false, ""
+	return false, fileName
+}
+
+var shortArr map[string]string
+
+func short() string {
+	shortArr = make(map[string]string)
+	fileName := api.Out
+	isList, _ := checkList(fileName)
+	if isList {
+		return "不支持集合"
+	}
+	for _, types := range basics {
+		if types == fileName {
+			return "不支持基本类型"
+		}
+	}
+	fields := getFields(fileCache[fileName])
+	var buffer bytes.Buffer
+	for _, field := range fields {
+		comment := field.Comment
+		name := field.Name
+		types := field.Type
+		if strings.TrimSpace(comment) != "" {
+			buffer.WriteString("    // " + comment + "\n")
+		}
+		buffer.WriteString("    private " + types + " " + shortName(name) + "\n\n")
+	}
+	return buffer.String()
+}
+
+func shortName(name string) string {
+	name = strings.ToLower(name)
+	if len(name) > 4 {
+		name = checkRepeat(name)
+	}
+	shortArr[name] = name
+	return name
+}
+
+var words = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"}
+
+func checkRepeat(name string) string {
+	var shortName string
+	if len(name) < 5 {
+		shortName = name[0:] + words[rand.Intn(14)] + name[:len(name)-1]
+	} else {
+		i := rand.Intn(len(name) - 1)
+		shortName = name[:1] + name[i:i+1] + name[len(name)-1:]
+	}
+
+	if shortArr[shortName] == shortName {
+		return checkRepeat(name)
+	}
+	return shortName
+}
+
+type outToInResult struct {
+	In  []Field
+	Out []Field
+}
+
+func outToIn() ([]byte, error) {
+	in := api.In
+	out := api.Out
+	resut := outToInResult{
+		In:  getFields(fileCache[in]),
+		Out: getFields(fileCache[out]),
+	}
+	return json.Marshal(resut)
 }

@@ -24,9 +24,16 @@ func getDefaultValue(_type string) string {
 
 //获取字段信息
 func FillField(line string, _field Field) Field {
+	//注解类型1
 	if r, _ := regexp.Compile("\\s+//\\s*"); r.MatchString(line) {
 		_field.Comment = r.ReplaceAllString(line, "")
 	}
+	//注解类型2
+	if r, _ := regexp.Compile("//\\s*\\S+"); r.MatchString(line) {
+		_field.Comment = strings.Replace(r.FindString(line), "//", "", -1)
+		line = r.ReplaceAllString(line, "")
+	}
+
 	if r, _ := regexp.Compile("\\s+@ValidateNull"); r.MatchString(line) {
 		_field.AllowNull = "否"
 	}

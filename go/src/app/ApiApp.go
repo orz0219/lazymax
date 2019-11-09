@@ -1,17 +1,14 @@
 package main
 
 import (
-	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"log"
 	"net/http"
-	"stat"
 	"text/template"
 )
 
 var projectName = "/home/xc/works/projects/company/Oceanus/zdd-common"
 
 var api = Api{}
-var isData = false
 
 var funcMap = template.FuncMap{"add": add}
 
@@ -65,22 +62,40 @@ func code(w http.ResponseWriter, r *http.Request) {
 	run(w, "src/ts/"+codeTypes, codeTypes)
 }
 
+func setter(w http.ResponseWriter, r *http.Request) {
+	cross(w)
+	projectName = r.PostFormValue("projectPath")
+	api.Out = r.PostFormValue("beanOut")
+	api.In = r.PostFormValue("beanIn")
+	InitFile(projectName, JAVA)
+	types := r.PostFormValue("setterTypes")
+	if types == "setter_short" {
+		_, err := w.Write([]byte(short()))
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if types == "setter_out_in" {
+		bytes, errs := outToIn()
+		if errs != nil {
+			log.Fatal(errs)
+		}
+		_, err := w.Write(bytes)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+}
+
 func main() {
 	log.Println("初始化完成")
 	log.Println("地址为: http://localhost:9090/")
-	files := assetfs.AssetFS{
-		Asset:     stat.Asset,
-		AssetDir:  stat.AssetDir,
-		AssetInfo: stat.AssetInfo,
-		Prefix:    "dist",
-	}
+
 	http.HandleFunc("/apis", apis)
 	http.HandleFunc("/code", code)
-	if isData {
-		http.Handle("/", http.FileServer(&files))
-	} else {
-		http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
-	}
+	http.HandleFunc("/setter", setter)
+	http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
+
 	err := http.ListenAndServe(":9090", nil)
 	if err != nil {
 		log.Fatal("Listen: ", err)
