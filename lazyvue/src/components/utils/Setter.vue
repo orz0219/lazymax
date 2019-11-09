@@ -4,24 +4,41 @@
         <hr/>
         <div class="bar">
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
-            <at-input v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
-            <at-input v-show="message.setterTypes !== 'setter_short'" v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
+            <at-input v-show="message.setterTypes !== 'setter_short'" v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
+            <at-input  v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
             <at-radio-group v-model="message.setterTypes">
                 <at-radio-button label="setter_short">获取缩写对象</at-radio-button>
-                <at-radio-button label="setter_in_out">入参转出参</at-radio-button>
-                <at-radio-button label="setter_out_in">出参转入参</at-radio-button>
+                <at-radio-button label="setter_out_in">出参-入参互转</at-radio-button>
             </at-radio-group>
-            <div style="text-align: center">
+            <at-collapse v-show="message.setterTypes === 'setter_out_in'" class="no-margin-top">
+                <at-collapse-item title="请进行出入参比对">
+                    <div style="text-align: right; margin-bottom: 10px">
+                        <at-button type="primary" @click="post">刷新</at-button>
+                    </div>
+                    <div class="row at-row no-gutter">
+                        <div class="col-md-12">
+                            <at-table :columns="setterTableColumns1" :data="outToIns.ins" stripe></at-table>
+                        </div>
+                        <div class="col-md-12">
+                            <at-table :columns="setterTableColumns2" :data="outToIns.outs" stripe></at-table>
+                        </div>
+                    </div>
+                </at-collapse-item>
+            </at-collapse>
+            <div class="submit-bar" style="text-align: center">
                 <at-button type="success" @click="getIt">生成</at-button>
             </div>
         </div>
         <div class="bar">
             <div class="row at-row no-gutter">
                 <div v-show="message.setterTypes !== 'setter_short'" class="col-md-12">
-                    <at-textarea minRows="20" v-model="nodes0" placeholder="入参展示位置"></at-textarea>
+                    <at-textarea minRows="20" v-model="nodes0str" placeholder="入参展示位置"></at-textarea>
                 </div>
-                <div :class="`col-md-${message.setterTypes==='setter_short' ? 24 : 12}`">
+                <div v-show="message.setterTypes === 'setter_short'" class="col-md-24">
                     <at-textarea minRows="20" v-model="nodes1" placeholder="出参展示位置"></at-textarea>
+                </div>
+                <div v-show="message.setterTypes !== 'setter_short'" class="col-md-12">
+                    <at-textarea minRows="20" v-model="nodes2str" placeholder="出参展示位置"></at-textarea>
                 </div>
             </div>
         </div>
@@ -39,8 +56,51 @@
                     beanOut: null,
                     setterTypes: "setter_short"
                 },
-                nodes0: null,
+                outToIns: {
+                    ins: [],
+                    insChecked: 0,
+                    outs: [],
+                    outsChecked: 0
+                },
+                nodes0str: null,
                 nodes1: null,
+                nodes2str: null,
+                setterTableColumns1: [
+                    {title: '选择', render: (h, params) => {
+                        return h('at-checkbox',{
+                            props: {
+                                disabled: this.outToIns.insChecked > this.outToIns.outsChecked || params.item.index < this.outToIns.insChecked,
+                                // 疑问?
+                                checked: params.item.index < this.outToIns.insChecked
+                            },
+                            on: {
+                                'on-change': (result) => {
+                                    //TODO
+                                    let maxChecked = this.outToIns.insChecked
+                                    let nowChecked = params.item.index
+                                    let item = this.outToIns.ins[nowChecked]
+                                    item['index'] = maxChecked
+                                    let item_max = this.outToIns.ins[maxChecked]
+                                    item_max['index'] = nowChecked
+                                    this.outToIns.ins[nowChecked] = this.outToIns.ins[maxChecked]
+                                    this.outToIns.ins[maxChecked] = item
+                                    this.outToIns.insChecked = result ? maxChecked + 1 : maxChecked -1
+                                    this.outToIns.ins.sort(((a, b) => {
+                                        return a['index'] - b['index']
+                                    }))
+                                }
+                            }
+                        })
+                        }},
+                    {title: '序号', key: 'index'},
+                    {title: '名称', key: 'Name'},
+                    {title: '注释', key: 'Comment'}
+                ],
+                setterTableColumns2: [
+                    {title: '序号', key: 'index'},
+                    {title: '名称', key: 'Name'},
+                    {title: '注释', key: 'Comment'}
+                ],
             }
         },
         created() {
@@ -58,12 +118,38 @@
                        return
                    }
                }
+                if (this.message.setterTypes === "setter_out_in") {
+                    return
+                }
+                this.post()
+            },
+            post() {
                 this.$post("/setter", this.message, result=>{
-                    this.nodes1 = result.data
+                    let data = result.data
+                    if (data && data['In']) {
+                        for (let index = 0; index < data['In'].length; index++) {
+                            data['In']['index'] = index
+                        }
+                        for (let index = 0; index < data['Out'].length; index++) {
+                            data['Out']['index'] = index
+                        }
+                        this.outToIns = {
+                            ins: data['In'],
+                            insChecked: 0,
+                            outs: data['Out'],
+                            outsChecked: 0
+                        }
+                    } else {
+                        this.nodes1 = data
+                    }
                 })
             },
             cacheProject() {
                 localStorage.setItem("cacheMessage", JSON.stringify(this.message))
+            },
+            changeSelect(arr) {
+                // eslint-disable-next-line no-console
+                console.log(arr)
             }
         }
     }
@@ -87,7 +173,7 @@
         border-radius: 4px 4px 0 0;
         background-color: #fff;
     }
-    .bar div{
+    .bar .at-input, .bar .at-radio-group, .bar .submit-bar {
         margin-top: 10px;
     }
 </style>
