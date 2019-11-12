@@ -4,9 +4,13 @@
         <hr/>
         <div class="bar">
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
+            <at-input v-model="rpc" placeholder="输入rpc/controller层类名" @change="changeRpc"></at-input>
             <at-input v-model="message.api" placeholder="输入api参数" @change="cacheProject"></at-input>
             <at-input v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
             <at-input v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
+            <at-radio-group v-model="apiIndex" :key="index" v-for="(item, index) in apis" @radio-group-change="changeApi">
+                <at-radio-button :label="index">{{item.Url}}</at-radio-button>
+            </at-radio-group>
             <div style="text-align: center">
                 <at-button type="success" @click="getIt">生成</at-button>
             </div>
@@ -28,7 +32,10 @@
                     beanIn: null,
                     beanOut: null,
                 },
-                nodes: null
+                rpc: null,
+                nodes: null,
+                apis:[],
+                apiIndex: -1
             }
         },
         created() {
@@ -53,6 +60,26 @@
             },
             cacheProject() {
                 localStorage.setItem("cacheMessage", JSON.stringify(this.message))
+            },
+            changeRpc() {
+                let rpc = this.rpc
+                if (rpc) {
+                    this.rpc = rpc.trim()
+                } else {
+                    return
+                }
+                this.$post("/apis/rpc", {rpc: rpc, projectPath: this.message.projectPath}, result=>{
+                    let r = result.data
+                    if (r) {
+                        this.apis = r;
+                    }
+                })
+            },
+            changeApi(index) {
+                let apiMessage = this.apis[index]
+                this.message.api = apiMessage.Url
+                this.message.beanIn = apiMessage.In
+                this.message.beanOut = apiMessage.Out
             }
         }
     }

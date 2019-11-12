@@ -16,7 +16,7 @@
                         <at-button type="primary" @click="post">刷新</at-button>
                     </div>
                     <div class="row at-row no-gutter">
-                        <div class="col-md-12">
+                        <div class="col-md-12" ref="inTable">
                             <at-table :columns="setterTableColumns1" :data="outToIns.ins" stripe></at-table>
                         </div>
                         <div class="col-md-12">
@@ -67,31 +67,42 @@
                 nodes2str: null,
                 setterTableColumns1: [
                     {title: '选择', render: (h, params) => {
-                        return h('at-checkbox',{
-                            props: {
-                                disabled: this.outToIns.insChecked > this.outToIns.outsChecked || params.item.index < this.outToIns.insChecked,
-                                // 疑问?
-                                checked: params.item.index < this.outToIns.insChecked
-                            },
-                            on: {
-                                'on-change': (result) => {
-                                    //TODO
-                                    let maxChecked = this.outToIns.insChecked
-                                    let nowChecked = params.item.index
-                                    let item = this.outToIns.ins[nowChecked]
-                                    item['index'] = maxChecked
-                                    let item_max = this.outToIns.ins[maxChecked]
-                                    item_max['index'] = nowChecked
-                                    this.outToIns.ins[nowChecked] = this.outToIns.ins[maxChecked]
-                                    this.outToIns.ins[maxChecked] = item
-                                    this.outToIns.insChecked = result ? maxChecked + 1 : maxChecked -1
-                                    this.outToIns.ins.sort(((a, b) => {
-                                        return a['index'] - b['index']
-                                    }))
+                        return h('at-button-group',[
+                            h('at-button', {
+                                props: {
+                                    size: 'small',
+                                    icon: 'icon-arrow-up'
+                                },
+                                on: {
+                                    click: () => {
+                                        let index = params.item.index
+                                        if (index === 0) return
+                                        let cacheItem = this.outToIns.ins[index]
+                                        this.outToIns.ins[index] = this.outToIns.ins[index - 1]
+                                        this.outToIns.ins[index - 1] = cacheItem
+                                        this.outToIns.ins.splice(0,0)
+                                    }
                                 }
-                            }
-                        })
-                        }},
+                            }),
+                            h('at-button', {
+                                props: {
+                                    size: 'small',
+                                    icon: 'icon-arrow-down'
+                                },
+                                on: {
+                                    click: () => {
+                                        let index = params.item.index
+                                        if (index === 0) return
+                                        let cacheItem = this.outToIns.ins[index]
+                                        this.outToIns.ins[index] = this.outToIns.ins[index + 1]
+                                        this.outToIns.ins[index + 1] = cacheItem
+                                        this.outToIns.ins.splice(0,0)
+                                    }
+                                }
+                            })
+                            ]
+                        )}
+                    },
                     {title: '序号', key: 'index'},
                     {title: '名称', key: 'Name'},
                     {title: '注释', key: 'Comment'}
@@ -99,8 +110,57 @@
                 setterTableColumns2: [
                     {title: '序号', key: 'index'},
                     {title: '名称', key: 'Name'},
-                    {title: '注释', key: 'Comment'}
+                    {title: '注释', key: 'Comment'},
+                    {title:'移除', render: (h, params) => {
+                            return h('at-button',{
+                                props:{
+                                    icon: "icon-x",
+                                    circle: true
+                                },
+                                on: {
+                                    click: () =>{
+                                        this.outToIns.outs.splice(params.item.index, 1)
+                                    }
+                                }
+                            })
+                    }}
                 ],
+                test1:[
+                    {
+                        title: '姓名',
+                        key: 'name'
+                    },
+                    {
+                        title: '年龄',
+                        key: 'age'
+                    },
+                    {
+                        title: '地址',
+                        key: 'address'
+                    }
+                ],
+                test2:[
+                    {
+                        name: '库里',
+                        age: 18,
+                        address: '深圳市宝安区创业一路'
+                    },
+                    {
+                        name: '詹姆斯',
+                        age: 25,
+                        address: '广州市天河区岗顶'
+                    },
+                    {
+                        name: '科比',
+                        age: 24,
+                        address: '上海市浦东新区'
+                    },
+                    {
+                        name: '杜兰特',
+                        age: 22,
+                        address: '深圳市南山区深南大道'
+                    }
+                ]
             }
         },
         created() {
@@ -128,10 +188,10 @@
                     let data = result.data
                     if (data && data['In']) {
                         for (let index = 0; index < data['In'].length; index++) {
-                            data['In']['index'] = index
+                            data['In']['Index'] = index
                         }
                         for (let index = 0; index < data['Out'].length; index++) {
-                            data['Out']['index'] = index
+                            data['Out']['Index'] = index
                         }
                         this.outToIns = {
                             ins: data['In'],
@@ -147,9 +207,8 @@
             cacheProject() {
                 localStorage.setItem("cacheMessage", JSON.stringify(this.message))
             },
-            changeSelect(arr) {
-                // eslint-disable-next-line no-console
-                console.log(arr)
+            changeChecked(arr) {
+                this.$Message(arr)
             }
         }
     }
