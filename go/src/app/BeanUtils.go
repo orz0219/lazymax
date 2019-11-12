@@ -49,7 +49,33 @@ func getFields(content string) []Field {
 	var fields []Field
 	_field := Field{AllowNull: "是"}
 	split := strings.Split(content, "\n")
+	// 内部类标识
+	isInner := -1
+	cacheLine := ""
+	cacheClass := ""
 	for _, s := range split {
+		// 查询父类信息
+		if strings.Contains(s, " extends ") {
+			parentClass := regexp.MustCompile("\\s+extends\\s+[a-zA-Z]+").FindString(s)
+			willRe := regexp.MustCompile("\\s+extends\\s+").FindString(parentClass)
+			parentClass = strings.ReplaceAll(parentClass, willRe, "")
+			content2 := fileCache[parentClass]
+			fields = getFields(content2)
+		}
+
+		// 规避内部类
+		if strings.Contains(s, " class ") {
+			isInner ++
+			cacheClass = regexp.MustCompile("\\s+class\\s+[a-zA-Z]+").FindString(s)
+			willRe := regexp.MustCompile("\\s+class\\s+").FindString(cacheClass)
+			cacheClass = strings.ReplaceAll(cacheClass, willRe, "")
+			cacheLine = ""
+		}
+		if isInner > 0{
+			cacheLine += s + "\n"
+			fileCache[cacheClass] = cacheLine
+			continue
+		}
 		_field = FillField(s, _field)
 		if _field.Name != "" {
 			fields = append(fields, _field)
@@ -104,6 +130,10 @@ func getModelString(fields []Field, c string) string {
 			if r != nil {
 				listBeanName := r.FindAllString(_type, 2)[1]
 				content := fileCache[listBeanName]
+				if content == "" {
+					buffer.WriteString("\n" + column + c + "],\n")
+					continue
+				}
 				_fields := getFields(content)
 				if !isExist {
 					otherBeans = append(otherBeans, Bean{Name: _type, Fields: _fields})
@@ -254,4 +284,47 @@ func outToIn() ([]byte, error) {
 		Out: getFields(fileCache[out]),
 	}
 	return json.Marshal(resut)
+}
+
+func parseRpc() []byte {
+	rpc := api.Rpc
+	rpcString := fileCache[rpc]
+	lines := strings.Split(rpcString, "\n")
+	suffix := ""
+	isSuffix := true
+	var result []Api
+	var temp Api
+	for _ , line := range lines {
+		mapping := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"(/[a-zA-z]+)+").FindString(line)
+		if mapping != "" {
+			willRe := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"").FindString(mapping)
+			mapping = strings.ReplaceAll(mapping, willRe, "")
+			if isSuffix {
+				isSuffix =false
+				suffix = mapping
+			} else {
+				temp.Url = suffix + mapping
+			}
+			continue
+		}
+		mapping = regexp.MustCompile("ApiResponse<\\S+>").FindString(line)
+		if mapping != "" {
+			willRe := regexp.MustCompile("ApiResponse<").FindString(mapping)
+			withEnd := strings.ReplaceAll(mapping, willRe, "")
+			temp.Out = strings.Replace(withEnd , ">" , "", 1)
+			mapping = regexp.MustCompile("@RequestBody\\s+[a-zA-Z]+").FindString(line)
+			willRe = regexp.MustCompile("@RequestBody\\s+").FindString(mapping)
+			if willRe != "" {
+				temp.In = strings.ReplaceAll(mapping, willRe, "")
+			} else {
+				temp.In = " "
+			}
+			result = append(result, temp)
+		}
+	}
+	b, err := json.Marshal(result)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return b
 }

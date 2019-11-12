@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"text/template"
 )
 
@@ -54,6 +55,16 @@ func apis(w http.ResponseWriter, r *http.Request) {
 	run(w, "src/ts/api", "api")
 }
 
+func apisRpc(w http.ResponseWriter, r *http.Request)  {
+	initApi(r, w)
+	api.Rpc = strings.TrimSpace(r.PostFormValue("rpc"))
+	InitFile(projectName, JAVA)
+	_, err := w.Write(parseRpc())
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func code(w http.ResponseWriter, r *http.Request) {
 	initApi(r, w)
 	codeTypes := r.PostFormValue("codeTypes")
@@ -92,6 +103,7 @@ func main() {
 	log.Println("地址为: http://localhost:9090/")
 
 	http.HandleFunc("/apis", apis)
+	http.HandleFunc("/apis/rpc", apisRpc)
 	http.HandleFunc("/code", code)
 	http.HandleFunc("/setter", setter)
 	http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
