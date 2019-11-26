@@ -66,41 +66,16 @@
                 nodes1: null,
                 nodes2str: null,
                 setterTableColumns1: [
+                    //<at-input-number v-model="num"></at-input-number>
                     {title: '选择', render: (h, params) => {
-                        return h('at-button-group',[
-                            h('at-button', {
-                                props: {
-                                    size: 'small',
-                                    icon: 'icon-arrow-up'
-                                },
+                        return h('at-input-number',{
                                 on: {
-                                    click: () => {
-                                        let index = params.item.index
-                                        if (index === 0) return
-                                        let cacheItem = this.outToIns.ins[index]
-                                        this.outToIns.ins[index] = this.outToIns.ins[index - 1]
-                                        this.outToIns.ins[index - 1] = cacheItem
-                                        this.outToIns.ins.splice(0,0)
+                                    change() {
+                                        // eslint-disable-next-line no-console
+                                        console.log(params.index)
                                     }
                                 }
-                            }),
-                            h('at-button', {
-                                props: {
-                                    size: 'small',
-                                    icon: 'icon-arrow-down'
-                                },
-                                on: {
-                                    click: () => {
-                                        let index = params.item.index
-                                        if (index === 0) return
-                                        let cacheItem = this.outToIns.ins[index]
-                                        this.outToIns.ins[index] = this.outToIns.ins[index + 1]
-                                        this.outToIns.ins[index + 1] = cacheItem
-                                        this.outToIns.ins.splice(0,0)
-                                    }
-                                }
-                            })
-                            ]
+                            }
                         )}
                     },
                     {title: '序号', key: 'index'},

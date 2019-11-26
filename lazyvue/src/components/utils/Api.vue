@@ -4,7 +4,10 @@
         <hr/>
         <div class="bar">
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
-            <at-input v-model="rpc" placeholder="输入rpc/controller层类名" @change="changeRpc"></at-input>
+            <at-button style="margin-top: 10px;" @click="getRps">获取RPC</at-button>
+            <at-select v-model="rpc" filterable size="large" @on-change="changeRpc" >
+                <at-option :key="index" v-for="(item, index) in rps" :value="item">{{item}}</at-option>
+            </at-select>
             <at-input v-model="message.api" placeholder="输入api参数" @change="cacheProject"></at-input>
             <at-input v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
             <at-input v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
@@ -33,9 +36,10 @@
                     beanOut: null,
                 },
                 rpc: null,
+                rps: [],
                 nodes: null,
                 apis:[],
-                apiIndex: -1
+                apiIndex: -1,
             }
         },
         created() {
@@ -72,6 +76,14 @@
                     let r = result.data
                     if (r) {
                         this.apis = r;
+                        let projectPath = this.message.projectPath
+                        this.message = {
+                            projectPath: projectPath,
+                            beanIn: r[0].In,
+                            beanOut: r[0].Out,
+                            api: r[0].Url
+                        }
+                        this.apiIndex = 0
                     }
                 })
             },
@@ -80,6 +92,16 @@
                 this.message.api = apiMessage.Url
                 this.message.beanIn = apiMessage.In
                 this.message.beanOut = apiMessage.Out
+            },
+            getRps() {
+                let projectPath = this.message.projectPath
+                if (projectPath) {
+                    this.$post("/apis/rps", {projectPath : projectPath}, result => {
+                        this.rps = result.data
+                    })
+                } else {
+                    this.$Message.warning("无法获取项目地址,请填写后再尝试!")
+                }
             }
         }
     }

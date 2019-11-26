@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
@@ -55,12 +56,29 @@ func apis(w http.ResponseWriter, r *http.Request) {
 	run(w, "src/ts/api", "api")
 }
 
-func apisRpc(w http.ResponseWriter, r *http.Request)  {
+func apisRpc(w http.ResponseWriter, r *http.Request) {
 	initApi(r, w)
 	api.Rpc = strings.TrimSpace(r.PostFormValue("rpc"))
 	InitFile(projectName, JAVA)
 	_, err := w.Write(parseRpc())
 	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func apisRps(w http.ResponseWriter, r *http.Request) {
+	initApi(r, w)
+	InitFile(projectName, JAVA)
+	var rps []string
+	for k, _ := range fileCache {
+		if strings.HasSuffix(k, "RPC") {
+			rps = append(rps, k)
+		}
+	}
+	bs, err := json.Marshal(rps)
+	if err == nil {
+		_, _ = w.Write(bs)
+	} else {
 		log.Fatal(err)
 	}
 }
@@ -104,6 +122,7 @@ func main() {
 
 	http.HandleFunc("/apis", apis)
 	http.HandleFunc("/apis/rpc", apisRpc)
+	http.HandleFunc("/apis/rps", apisRps)
 	http.HandleFunc("/code", code)
 	http.HandleFunc("/setter", setter)
 	http.Handle("/", http.FileServer(http.Dir("./src/dist/")))

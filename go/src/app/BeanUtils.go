@@ -65,13 +65,13 @@ func getFields(content string) []Field {
 
 		// 规避内部类
 		if strings.Contains(s, " class ") {
-			isInner ++
+			isInner++
 			cacheClass = regexp.MustCompile("\\s+class\\s+[a-zA-Z]+").FindString(s)
 			willRe := regexp.MustCompile("\\s+class\\s+").FindString(cacheClass)
 			cacheClass = strings.ReplaceAll(cacheClass, willRe, "")
 			cacheLine = ""
 		}
-		if isInner > 0{
+		if isInner > 0 {
 			cacheLine += s + "\n"
 			fileCache[cacheClass] = cacheLine
 			continue
@@ -294,13 +294,16 @@ func parseRpc() []byte {
 	isSuffix := true
 	var result []Api
 	var temp Api
-	for _ , line := range lines {
+	for _, line := range lines {
+		if strings.Contains(line, ";") {
+			continue
+		}
 		mapping := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"(/[a-zA-z]+)+").FindString(line)
 		if mapping != "" {
 			willRe := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"").FindString(mapping)
 			mapping = strings.ReplaceAll(mapping, willRe, "")
 			if isSuffix {
-				isSuffix =false
+				isSuffix = false
 				suffix = mapping
 			} else {
 				temp.Url = suffix + mapping
@@ -311,7 +314,7 @@ func parseRpc() []byte {
 		if mapping != "" {
 			willRe := regexp.MustCompile("ApiResponse<").FindString(mapping)
 			withEnd := strings.ReplaceAll(mapping, willRe, "")
-			temp.Out = strings.Replace(withEnd , ">" , "", 1)
+			temp.Out = strings.Replace(withEnd, ">", "", 1)
 			mapping = regexp.MustCompile("@RequestBody\\s+[a-zA-Z]+").FindString(line)
 			willRe = regexp.MustCompile("@RequestBody\\s+").FindString(mapping)
 			if willRe != "" {
