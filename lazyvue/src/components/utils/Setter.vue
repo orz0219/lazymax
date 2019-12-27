@@ -70,20 +70,37 @@
                     {title: '选择', render: (h, params) => {
                         return h('at-input-number',{
                                 on: {
-                                    change() {
-                                        // eslint-disable-next-line no-console
-                                        console.log(params.index)
-                                    }
+                                    blur: (a) => {
+                                        let ins = this.outToIns.ins
+                                        let old_index = params.index
+                                        let new_index = a.target.valueAsNumber - 1
+                                        if (new_index > ins.length || new_index === 0) {
+                                            a.target.value = 0
+                                            return
+                                        }
+                                        let temp = ins[old_index]
+                                        temp['Index'] = new_index + 1
+                                        ins[old_index] = ins[new_index]
+                                        ins[old_index]['Index'] = old_index + 1
+                                        a.target.value = 0
+                                        this.$set(ins, new_index, temp)
+                                    },
+                                },
+                                props: {
+                                        'min': 0
+                                },
+                                style: {
+                                    'width': '80px'
                                 }
                             }
                         )}
                     },
-                    {title: '序号', key: 'index'},
+                    {title: '序号', key: 'Index'},
                     {title: '名称', key: 'Name'},
                     {title: '注释', key: 'Comment'}
                 ],
                 setterTableColumns2: [
-                    {title: '序号', key: 'index'},
+                    {title: '序号', key: 'Index'},
                     {title: '名称', key: 'Name'},
                     {title: '注释', key: 'Comment'},
                     {title:'移除', render: (h, params) => {
@@ -94,48 +111,17 @@
                                 },
                                 on: {
                                     click: () =>{
-                                        this.outToIns.outs.splice(params.item.index, 1)
+                                        let outs = this.outToIns.outs
+                                        outs.splice(params.index, 1)
+                                        for (let index = 0; index <outs.length; index++) {
+                                            outs[index]['Index'] = index + 1
+                                        }
+                                        this.outToIns.outs = outs
                                     }
                                 }
                             })
                     }}
                 ],
-                test1:[
-                    {
-                        title: '姓名',
-                        key: 'name'
-                    },
-                    {
-                        title: '年龄',
-                        key: 'age'
-                    },
-                    {
-                        title: '地址',
-                        key: 'address'
-                    }
-                ],
-                test2:[
-                    {
-                        name: '库里',
-                        age: 18,
-                        address: '深圳市宝安区创业一路'
-                    },
-                    {
-                        name: '詹姆斯',
-                        age: 25,
-                        address: '广州市天河区岗顶'
-                    },
-                    {
-                        name: '科比',
-                        age: 24,
-                        address: '上海市浦东新区'
-                    },
-                    {
-                        name: '杜兰特',
-                        age: 22,
-                        address: '深圳市南山区深南大道'
-                    }
-                ]
             }
         },
         created() {
@@ -154,7 +140,23 @@
                    }
                }
                 if (this.message.setterTypes === "setter_out_in") {
-                    return
+                    // eslint-disable-next-line no-console
+                    console.log(this.outToIns)
+                    let oi = this.outToIns
+                    let inStr = ''
+                    let outStr = ''
+                    for (let index = 0; index < oi.ins.length; index++) {
+                        let strComment = `//${oi.ins[index]['Comment']}\n`
+                        let nameIn = oi.ins[index]['Name']
+                        let nameOut = oi.outs[index]['Name']
+                        inStr += strComment
+                        outStr += strComment
+                        inStr += `in.set${nameIn[0].toUpperCase()}${nameIn.slice(1)}(out.get${nameOut[0].toUpperCase()}${nameOut.slice(1)}())\n`
+                        outStr += `out.set${nameOut[0].toUpperCase()}${nameOut.slice(1)}(in.get${nameIn[0].toUpperCase()}${nameIn.slice(1)}())\n`
+                    }
+                    this.nodes0str = inStr
+                    this.nodes2str = outStr
+                    return;
                 }
                 this.post()
             },
@@ -163,10 +165,10 @@
                     let data = result.data
                     if (data && data['In']) {
                         for (let index = 0; index < data['In'].length; index++) {
-                            data['In']['Index'] = index
+                            data['In'][index]['Index'] = index + 1
                         }
                         for (let index = 0; index < data['Out'].length; index++) {
-                            data['Out']['Index'] = index
+                            data['Out'][index]['Index'] = index + 1
                         }
                         this.outToIns = {
                             ins: data['In'],
@@ -174,6 +176,8 @@
                             outs: data['Out'],
                             outsChecked: 0
                         }
+                        // eslint-disable-next-line no-console
+                        console.log(this.outToIns)
                     } else {
                         this.nodes1 = data
                     }
