@@ -6,6 +6,8 @@
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
             <at-input v-show="message.setterTypes !== 'setter_short'" v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
             <at-input  v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
+            <at-input  v-model="nameOut" placeholder="出参变量名"></at-input>
+            <at-input  v-model="nameIn" placeholder="入参变量名"></at-input>
             <at-radio-group v-model="message.setterTypes">
                 <at-radio-button label="setter_short">获取缩写对象</at-radio-button>
                 <at-radio-button label="setter_out_in">出参-入参互转</at-radio-button>
@@ -65,25 +67,35 @@
                 nodes0str: null,
                 nodes1: null,
                 nodes2str: null,
+                nameOut: null,
+                nameIn: null,
                 setterTableColumns1: [
                     //<at-input-number v-model="num"></at-input-number>
                     {title: '选择', render: (h, params) => {
                         return h('at-input-number',{
                                 on: {
                                     blur: (a) => {
+                                        // eslint-disable-next-line no-debugger
+                                        debugger
                                         let ins = this.outToIns.ins
                                         let old_index = params.index
                                         let new_index = a.target.valueAsNumber - 1
-                                        if (new_index > ins.length || new_index === 0) {
+                                        if (new_index > ins.length || new_index === -1) {
                                             a.target.value = 0
                                             return
                                         }
                                         let temp = ins[old_index]
-                                        temp['Index'] = new_index + 1
-                                        ins[old_index] = ins[new_index]
-                                        ins[old_index]['Index'] = old_index + 1
+                                        ins.splice(old_index, 1)
+                                        ins.splice(new_index, 0, temp)
+                                        new_index = new_index > old_index ? old_index : new_index
+                                        for (let index = new_index; index < ins.length; index++) {
+                                            ins[index]['Index'] = index + 1
+                                        }
+                                        // temp['Index'] = new_index + 1
+                                        // ins[old_index] = ins[new_index]
+                                        // ins[old_index]['Index'] = old_index + 1
                                         a.target.value = 0
-                                        this.$set(ins, new_index, temp)
+                                        // this.$set(ins, new_index, temp)
                                     },
                                 },
                                 props: {
@@ -97,7 +109,25 @@
                     },
                     {title: '序号', key: 'Index'},
                     {title: '名称', key: 'Name'},
-                    {title: '注释', key: 'Comment'}
+                    {title: '注释', key: 'Comment'},
+                    {title:'移除', render: (h, params) => {
+                            return h('at-button',{
+                                props:{
+                                    icon: "icon-x",
+                                    circle: true
+                                },
+                                on: {
+                                    click: () =>{
+                                        let ins = this.outToIns.ins
+                                        ins.splice(params.index, 1)
+                                        for (let index = 0; index <ins.length; index++) {
+                                            ins[index]['Index'] = index + 1
+                                        }
+                                        this.outToIns.ins = ins
+                                    }
+                                }
+                            })
+                        }}
                 ],
                 setterTableColumns2: [
                     {title: '序号', key: 'Index'},
@@ -145,14 +175,16 @@
                     let oi = this.outToIns
                     let inStr = ''
                     let outStr = ''
+                    let nameIns = this.nameIn
+                    let nameOuts = this.nameOut
                     for (let index = 0; index < oi.ins.length; index++) {
                         let strComment = `//${oi.ins[index]['Comment']}\n`
                         let nameIn = oi.ins[index]['Name']
                         let nameOut = oi.outs[index]['Name']
                         inStr += strComment
                         outStr += strComment
-                        inStr += `in.set${nameIn[0].toUpperCase()}${nameIn.slice(1)}(out.get${nameOut[0].toUpperCase()}${nameOut.slice(1)}())\n`
-                        outStr += `out.set${nameOut[0].toUpperCase()}${nameOut.slice(1)}(in.get${nameIn[0].toUpperCase()}${nameIn.slice(1)}())\n`
+                        inStr += `${nameIns}.set${nameIn[0].toUpperCase()}${nameIn.slice(1)}(${nameOuts}.get${nameOut[0].toUpperCase()}${nameOut.slice(1)}());\n`
+                        outStr += `${nameOuts}.set${nameOut[0].toUpperCase()}${nameOut.slice(1)}(${nameIns}.get${nameIn[0].toUpperCase()}${nameIn.slice(1)}());\n`
                     }
                     this.nodes0str = inStr
                     this.nodes2str = outStr
@@ -162,6 +194,8 @@
             },
             post() {
                 this.$post("/setter", this.message, result=>{
+                    // eslint-disable-next-line no-debugger
+                    debugger
                     let data = result.data
                     if (data && data['In']) {
                         for (let index = 0; index < data['In'].length; index++) {

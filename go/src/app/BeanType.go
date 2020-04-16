@@ -24,7 +24,7 @@ const (
 
 var beanTypeArr = [...]string{"VOIn", "VOOut", "RPC",
 	"Service", "ServiceImpl", "RMT", "RmtImpl", "Hystrix",
-	"Skeleton", "VO", "Area", "Out", "In"}
+	"Skeleton", "VO", "Area", "Out", "In", "List"}
 
 func String(b BeanType) string {
 	return beanTypeArr[b]

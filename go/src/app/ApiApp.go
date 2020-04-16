@@ -118,7 +118,7 @@ func setter(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	log.Println("初始化完成")
-	log.Println("地址为: http://localhost:9090/")
+	log.Println("地址为: http://localhost:9091/")
 
 	http.HandleFunc("/apis", apis)
 	http.HandleFunc("/apis/rpc", apisRpc)
@@ -127,7 +127,7 @@ func main() {
 	http.HandleFunc("/setter", setter)
 	http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
 
-	err := http.ListenAndServe(":9090", nil)
+	err := http.ListenAndServe(":9091", nil)
 	if err != nil {
 		log.Fatal("Listen: ", err)
 	}
