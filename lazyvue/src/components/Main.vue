@@ -6,6 +6,7 @@
             <at-button type="text" @click="url('/api')">文档生成</at-button>
             <at-button type="text" @click="url('/rpc')">代码生成</at-button>
             <at-button type="text" @click="url('/setter')">Setter生成</at-button>
+            <at-button type="text" @click="url('/dbUtils')">实体类生成</at-button>
         </div>
     </div>
 </template>

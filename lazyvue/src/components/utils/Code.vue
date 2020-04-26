@@ -5,7 +5,7 @@
         <div class="bar">
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
             <at-input v-model="message.api" placeholder="输入api参数" @change="cacheProject"></at-input>
-            <at-input v-model="message.projectName" placeholder="输入api参数" @change="cacheProject"></at-input>
+            <at-input v-model="message.projectName" placeholder="输入项目名称" @change="cacheProject"></at-input>
             <at-input v-model="message.des" placeholder="输入模块注释[例: 首页模块]" @change="cacheProject"></at-input>
             <at-input v-model="message.suf" placeholder="输入获取方法前缀小写[例: home]" @change="cacheProject"></at-input>
             <at-input v-model="message.beanIn" placeholder="输入获取方法入参类名" @change="cacheProject"></at-input>

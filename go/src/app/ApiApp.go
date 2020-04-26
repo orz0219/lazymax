@@ -113,10 +113,23 @@ func setter(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
-
 }
 
-func main() {
+func dbUtils(w http.ResponseWriter, r *http.Request) {
+	cross(w)
+	dbConfig.ip = r.PostFormValue("ip")
+	dbConfig.user = r.PostFormValue("user")
+	dbConfig.password = r.PostFormValue("password")
+	dbConfig.dbName = r.PostFormValue("dbName")
+	bytes, e := json.Marshal(connect())
+	checkErr(e)
+	_, err := w.Write(bytes)
+	checkErr(err)
+}
+
+
+
+func start()  {
 	log.Println("初始化完成")
 	log.Println("地址为: http://localhost:9091/")
 
@@ -125,10 +138,15 @@ func main() {
 	http.HandleFunc("/apis/rps", apisRps)
 	http.HandleFunc("/code", code)
 	http.HandleFunc("/setter", setter)
+	http.HandleFunc("/db", dbUtils)
 	http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
 
 	err := http.ListenAndServe(":9091", nil)
 	if err != nil {
 		log.Fatal("Listen: ", err)
 	}
+}
+
+func main() {
+	start()
 }
