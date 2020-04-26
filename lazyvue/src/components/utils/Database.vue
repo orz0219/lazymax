@@ -62,12 +62,12 @@
                 localStorage.setItem("cacheDb", JSON.stringify(this.dbConfig))
             },
             changeTables() {
-                const tableName = this.tableName
+                let tableName = this.tableName
                 const fields = this.result[tableName]
                 let str = ''
                 for (let index = 0; index < fields.length; index++) {
                     let field = fields[index]
-                    str += '// ' + field['Comment'].replace(' ', '_') + '\n'
+                    str += '// ' + field['Comment'].replace(/ /g, '_') + '\n'
                     let type = field['Type']
                     let types = 'String'
                     if (type === 'bigint') {
@@ -81,6 +81,10 @@
                         return letter.toUpperCase();
                     }) + '\n'
                 }
+                tableName = tableName.charAt(0).toUpperCase() + tableName.slice(1)
+                str += '\n\n className is ' + tableName.replace(/_(\w)/g, function(all, letter){
+                    return letter.toUpperCase();
+                }) + '\n'
                 this.nodes = str
             }
         }
