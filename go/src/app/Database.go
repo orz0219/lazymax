@@ -16,8 +16,6 @@ type DbConfig struct {
 	dbName string
 }
 
-
-
 var dbConfig DbConfig
 
 var dbMap map[string][]Field

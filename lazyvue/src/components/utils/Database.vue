@@ -10,6 +10,7 @@
             <at-select v-model="tableName" v-if="tableNames.length > 0" filterable size="large" @on-change="changeTables">
                 <at-option :key="index" v-for="(item, index) in tableNames" :value="item">{{item}}</at-option>
             </at-select>
+            <at-input v-model="className" v-if="className != null" placeholder="class类名"></at-input>
             <div style="text-align: center">
                 <at-button type="success" @click="getIt">生成</at-button>
             </div>
@@ -34,7 +35,8 @@
                 tableNames: [],
                 tableName: null,
                 result: null,
-                nodes: null
+                nodes: null,
+                className: null
             }
         },
         created() {
@@ -64,6 +66,10 @@
             changeTables() {
                 let tableName = this.tableName
                 const fields = this.result[tableName]
+                tableName = tableName.charAt(0).toUpperCase() + tableName.slice(1)
+                this.className = tableName.replace(/_(\w)/g, function(all, letter){
+                    return letter.toUpperCase();
+                })
                 let str = ''
                 for (let index = 0; index < fields.length; index++) {
                     let field = fields[index]
@@ -79,12 +85,8 @@
                     }
                     str += 'private ' + types + ' ' + field['Name'].replace(/_(\w)/g, function(all, letter){
                         return letter.toUpperCase();
-                    }) + '\n'
+                    }) + ';\n'
                 }
-                tableName = tableName.charAt(0).toUpperCase() + tableName.slice(1)
-                str += '\n\n className is ' + tableName.replace(/_(\w)/g, function(all, letter){
-                    return letter.toUpperCase();
-                }) + '\n'
                 this.nodes = str
             }
         }

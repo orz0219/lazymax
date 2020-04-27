@@ -120,8 +120,12 @@ func dbUtils(w http.ResponseWriter, r *http.Request) {
 	dbConfig.ip = r.PostFormValue("ip")
 	dbConfig.user = r.PostFormValue("user")
 	dbConfig.password = r.PostFormValue("password")
-	dbConfig.dbName = r.PostFormValue("dbName")
-	bytes, e := json.Marshal(connect())
+	newDbName := r.PostFormValue("dbName")
+	if newDbName != dbConfig.dbName {
+		dbConfig.dbName = newDbName
+		connect()
+	}
+	bytes, e := json.Marshal(dbMap)
 	checkErr(e)
 	_, err := w.Write(bytes)
 	checkErr(err)
