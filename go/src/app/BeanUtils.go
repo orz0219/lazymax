@@ -298,7 +298,7 @@ func parseRpc() []byte {
 		if strings.Contains(line, ";") {
 			continue
 		}
-		mapping := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"(/[a-zA-z]+)+").FindString(line)
+		mapping := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"([a-zA-z\\-/]+)+").FindString(line)
 		if mapping != "" {
 			willRe := regexp.MustCompile("@(Request|Post|Get)Mapping\\(\"").FindString(mapping)
 			mapping = strings.ReplaceAll(mapping, willRe, "")
@@ -310,9 +310,9 @@ func parseRpc() []byte {
 			}
 			continue
 		}
-		mapping = regexp.MustCompile("ApiResponse<\\S+>").FindString(line)
+		mapping = regexp.MustCompile("(ApiResponse|NormalResp)<\\S+>").FindString(line)
 		if mapping != "" {
-			willRe := regexp.MustCompile("ApiResponse<").FindString(mapping)
+			willRe := regexp.MustCompile("(ApiResponse|NormalResp)<").FindString(mapping)
 			withEnd := strings.ReplaceAll(mapping, willRe, "")
 			temp.Out = strings.Replace(withEnd, ">", "", 1)
 			mapping = regexp.MustCompile("@RequestBody\\s+[a-zA-Z]+").FindString(line)
