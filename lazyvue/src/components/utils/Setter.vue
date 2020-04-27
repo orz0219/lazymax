@@ -6,8 +6,8 @@
             <at-input v-model="message.projectPath" placeholder="输入项目路径" @change="cacheProject"/>
             <at-input v-show="message.setterTypes !== 'setter_short'" v-model="message.beanIn" placeholder="输入入参类名" @change="cacheProject"></at-input>
             <at-input  v-model="message.beanOut" placeholder="输入出参类名" @change="cacheProject"></at-input>
-            <at-input  v-model="nameOut" placeholder="出参变量名"></at-input>
-            <at-input  v-model="nameIn" placeholder="入参变量名"></at-input>
+            <at-input v-if ="message.setterTypes === 'setter_out_in'" v-model="nameOut" placeholder="出参变量名"></at-input>
+            <at-input v-if="message.setterTypes === 'setter_out_in'" v-model="nameIn" placeholder="入参变量名"></at-input>
             <at-radio-group v-model="message.setterTypes">
                 <at-radio-button label="setter_short">获取缩写对象</at-radio-button>
                 <at-radio-button label="setter_out_in">出参-入参互转</at-radio-button>
