@@ -18,6 +18,9 @@
         <div class="bar">
             <at-textarea minRows="20" v-model="nodes" placeholder="文档展示位置"></at-textarea>
         </div>
+        <div class="bar">
+            <at-textarea minRows="1" v-model="sqlStr" placeholder="数据库字段对应"></at-textarea>
+        </div>
     </div>
 </template>
 
@@ -36,6 +39,7 @@
                 tableName: null,
                 result: null,
                 nodes: null,
+                sqlStr: null,
                 className: null
             }
         },
@@ -71,8 +75,16 @@
                     return letter.toUpperCase();
                 })
                 let str = ''
+                let sqlStr = ''
                 for (let index = 0; index < fields.length; index++) {
                     let field = fields[index]
+                    let upCaseName = field['Name'].replace(/_(\w)/g, function(all, letter){
+                        return letter.toUpperCase();
+                    })
+                    sqlStr += field['Name'] + " " + upCaseName
+                    if (index !== fields.length - 1) {
+                        sqlStr += ","
+                    }
                     str += '// ' + field['Comment'].replace(/ /g, '_') + '\n'
                     let type = field['Type']
                     let types = 'String'
@@ -83,11 +95,10 @@
                     } else if (type === 'date' || type === 'datetime') {
                         types = 'Date'
                     }
-                    str += 'private ' + types + ' ' + field['Name'].replace(/_(\w)/g, function(all, letter){
-                        return letter.toUpperCase();
-                    }) + ';\n'
+                    str += 'private ' + types + ' ' + upCaseName + ';\n'
                 }
                 this.nodes = str
+                this.sqlStr = sqlStr
             }
         }
     }
