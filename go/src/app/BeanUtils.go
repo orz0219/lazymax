@@ -168,16 +168,16 @@ func InitFile(path string, types SuffixType) {
 			} else if strings.HasSuffix(fileName, suffixType) {
 				fileNameMsg := regexp.MustCompile(`(\S+)` + suffixType).FindStringSubmatch(fileName)
 				shortFileName := fileNameMsg[1]
-				if _, err := GetBeanType(shortFileName); err == nil {
+				//if _, err := GetBeanType(shortFileName); err == nil {
 					// 读取文件字符串并缓存
-					if fileByte, err := ioutil.ReadFile(path + "/" + fileName); err == nil {
-						fileCache[shortFileName] = string(fileByte)
-					} else {
-						log.Println(err)
-					}
+				if fileByte, err := ioutil.ReadFile(path + "/" + fileName); err == nil {
+					fileCache[shortFileName] = string(fileByte)
 				} else {
-					//log.Println(fileName, err)
+					log.Println(err)
 				}
+				//} else {
+					//log.Println(fileName, err)
+				//}
 			}
 		}
 	} else {

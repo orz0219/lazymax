@@ -1,13 +1,18 @@
 <template>
     <div class="show-page">
-        <div class="title"><h2>一些测试</h2></div>
+        <div class="title"><h2>测试专区</h2></div>
         <hr/>
-        <div class="bar">
-            <at-input v-model="message" placeholder="输入消息" @change="changeMessage"></at-input>
-        </div>
-        <div class="bar">
-            <at-textarea minRows="20" v-model="nodes" placeholder="消息展示位置"></at-textarea>
-        </div>
+        <at-tabs v-model="activeKey">
+            <at-tab-pane label="数据管理" name="dbs">
+                <p>Content of Tab Pane 1</p>
+            </at-tab-pane>
+            <at-tab-pane label="Tab2" name="name2">
+                <p>Content of Tab Pane 2</p>
+            </at-tab-pane>
+            <at-tab-pane label="Tab3" name="name3">
+                <p>Content of Tab Pane 3</p>
+            </at-tab-pane>
+        </at-tabs>
     </div>
 </template>
 
@@ -16,36 +21,17 @@
         name: "Test",
         data() {
             return {
-                message: null,
-                nodes: null,
+                activeKey: "dbs"
             }
         },
         created() {
-            this.initWebSocket()
+            this.$post("/test", {}, result => {
+                // eslint-disable-next-line no-console
+                console.log(result)
+            })
         },
         methods: {
-            initWebSocket() {
-                const ws_url = "ws://127.0.0.1:9001/kanban"
-                this.websock = new WebSocket(ws_url);
-                this.websock.onmessage = this.wMessage;
-                this.websock.onopen = this.wOpen;
-                this.websock.onerror = this.wError;
-                this.websock.onclose = this.wClose;
-            },
-            wMessage(message) {
-                this.nodes +=  message
-            },
-            wOpen() {
-                this.nodes += "链接尝试启动\n"
-            },
-            wError(e) {
-                this.nodes += "链接失败\n"
-                this.nodes += e
-            },
-            wClose() {
-                this.nodes += "链接关闭\n"
-            },
-            changeMessage() {
+            changeTablesName() {
 
             }
         }

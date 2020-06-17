@@ -127,6 +127,16 @@ func dbUtils(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 }
 
+func changeDb(w http.ResponseWriter, r *http.Request) {
+	cross(w)
+	dbConfig.ip = "10.0.10.230:3306"
+	dbConfig.user = "zdd_admin"
+	dbConfig.password = "Xlt@2019"
+	dbConfig.dbName = "izy_health"
+	dbConfig.tableName = r.PostFormValue("tableName")
+	selectAllMessageByTableName()
+}
+
 
 
 func start()  {
@@ -139,6 +149,7 @@ func start()  {
 	http.HandleFunc("/code", code)
 	http.HandleFunc("/setter", setter)
 	http.HandleFunc("/db", dbUtils)
+	http.HandleFunc("/test", changeDb)
 	http.Handle("/", http.FileServer(http.Dir("./src/dist/")))
 
 	err := http.ListenAndServe(":9091", nil)

@@ -2,8 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
-	_"github.com/Go-SQL-Driver/MySQL"
+	_ "github.com/Go-SQL-Driver/MySQL"
 	"log"
 )
 
@@ -14,22 +15,28 @@ type DbConfig struct {
 	user string
 	password string
 	dbName string
+	tableName string
 }
 
 var dbConfig DbConfig
 
 var dbMap map[string][]Field
 
-func connect() map[string][]Field{
+func con()  {
 	var err error
 	db, err = sql.Open("mysql", dbConfig.user+":"+dbConfig.password+"@tcp("+dbConfig.ip+")/"+dbConfig.dbName)
 	checkErr(err)
+}
+
+
+func connect() map[string][]Field{
+	con()
 	tableNames := getTables()
 	dbMap = make(map[string][]Field )
 	for _, tableName := range tableNames {
 		dbMap[tableName] = getFieldsInTable(tableName)
 	}
-	err = db.Close()
+	err := db.Close()
 	checkErr(err)
 	return dbMap
 }
@@ -61,6 +68,28 @@ func getFieldsInTable(tableName string) []Field {
 		fields = append(fields, field)
 	}
 	return fields
+}
+
+func selectAllMessageByTableName() {
+	con()
+	sqlStr := "show table status"
+	rows, e := db.Query(sqlStr)
+	checkErr(e)
+	columns, _ := rows.Columns()
+	bytes, e := json.Marshal(columns)
+	checkErr(e)
+	println(string(bytes))
+	values := make([]interface{}, len(columns))
+	values1 := make([]interface{}, len(columns))
+	for rows.Next(){
+		for i := range columns {
+			values1[i] = &values[i]
+		}
+		_ = rows.Scan(values1...)
+		b, _ := json.Marshal(values)
+		println(string(b))
+	}
+
 }
 
 func checkErr(err error)  {
